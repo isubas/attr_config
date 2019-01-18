@@ -1,0 +1,12 @@
+Style/Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+Style/AsciiComments:
+  Enabled: false
+
+AllCops:
+  Exclude:
+    - 'test/**/*'
