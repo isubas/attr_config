@@ -1,8 +1,6 @@
-# AttrConfig
+# Attr Config
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/attr_config`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+It is a gem that allows you to easily management configurations at the class and instance level. Inspired by ActiveSupport class_attribute.
 
 ## Installation
 
@@ -22,7 +20,84 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+class Provider
+  include AttrConfig::Configurable
+
+  # basic configurations
+  attr_config :default_currency
+  attr_config :lang
+  attr_config :name, writable: { instance: false, class: false }
+  attr_config :refresh_time, default: 0
+  attr_config :store_type, default: '3d_pay_hosting'
+  attr_config :transaction_type, default: 'Auth'
+  attr_config :encoding, default: 'utf-8'
+
+  # urls configurations
+  attr_config :callback_url
+  attr_config :fail_url
+  attr_config :success_url
+  attr_config :production_url
+  attr_config :test_url
+
+  # credentials configurations
+  # NOTE: client_id and store_key cannot be read or written via instance
+  attr_config :client_id, writable: { instance: false }, readable: { instance: false }
+  attr_config :store_key, writable: { instance: false }, readable: { instance: false }
+end
+
+class Bank < Provider
+  # specific configurations
+  attr_config :base_schema
+  attr_config :product_schema
+  attr_config :invoice_schema
+
+  # overwrite configurations
+  attr_config :callback_url,   default: 'http://localhost/callback'
+  attr_config :fail_url,       default: 'http://localhost/fail'
+  attr_config :success_url,    default: 'http://localhost/success'
+  attr_config :production_url, default: 'http://localhost/production'
+  attr_config :test_url,       default: 'http://localhost/test'
+
+  # configure example
+  configure do |config|
+    config.name             = 'Bank Name'
+    config.test_url         = 'https://test.example.com'
+  end
+
+  # or
+  self.default_currency = 'TL'
+  self.lang = 'tr'
+end
+
+puts Provider.default_currency # nil
+puts Provider.store_type # 3d_pay_hosting
+puts Provider.callback_url # nil
+
+puts Bank.store_type # 3d_pay_hosting
+puts Bank.callback_url # http://localhost/callback
+
+provider = Provider.new
+
+puts provider.default_currency # nil
+puts provider.lang # nil
+
+provider.lang = 'en'
+puts provider.lang # en
+puts Provider.lang # nil
+
+Provider.configure do |config|
+  config.lang = 'tr'
+  config.default_currency = 'USD'
+end
+
+puts Provider.default_currency # USD
+
+provider_instance = Provider.new
+puts provider_instance.default_currency # USD
+provider_instance.default_currency = 'TL'
+puts provider_instance.default_currency  # TL
+```
 
 ## Development
 
