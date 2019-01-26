@@ -168,4 +168,15 @@ class AttrConfigTest < Minitest::Test
     assert_equal Base.bar, 'Base#bar'
     assert_equal Sample.bar, 'Sample#bar'
   end
+
+  def test_configure
+    Sample.configure do |config|
+      config.test = 'Configure#Test'
+    end
+
+    assert_equal Sample.config.test, 'Configure#Test'
+    assert_equal Sample.test, 'Configure#Test'
+    assert_equal Sample.new.config.test, 'Configure#Test'
+    assert_equal Sample.new.test, 'Configure#Test'
+  end
 end
